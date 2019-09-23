@@ -1,0 +1,118 @@
+#!/bin/bash
+
+exit_command(){
+	echo "";
+	exit 130;
+}
+
+usage(){
+	cat << USAGE_MSG
+
+Usage: $(basename $0) [commands] [options] <file>
+
+Commands:
+ --encrypt, -e			Encrypt <file> with a GPG's supported cipher
+				algorithm (default=AES256)
+
+ --decrypt, -d			Decrypt <file>
+
+
+Options:
+ --delete, -rm			Remove <file> after encryption
+
+ --ascii, -a			Create ASCII armored output
+
+ --cipher-algo=<ALGORITHM>	Choose one of GPG's supported cipher algorithms
+				instead of the default one
+
+
+USAGE_MSG
+}
+
+
+trap exit_command SIGINT
+
+
+if [ $# -lt 2 ]; then
+	usage;
+	exit 0;
+fi
+
+
+if [[ "$@" == *'--ascii'* ]] || [[ "$@" == *'-a'* ]]; then
+	ASCII_OPTION='-a'
+else
+	ASCII_OPTION=''
+fi
+
+
+if [[ "$@" == *'--cipher-algo='* ]]; then
+	ALGO=$(echo $@ | cut -d'=' -f 2 | awk '{print $1}');
+fi
+
+
+if [ -z ${ALGO} ];then
+	ALGO=AES256
+fi
+
+
+FILE=${*: -1}
+TARGET=$(basename $FILE)
+
+
+if [[ "$@" == *'--encrypt'* ]] || [[ "$@" == *'-e'* ]]; then
+	gpg --cipher-algo $ALGO --symmetric $ASCII_OPTION $TARGET
+	
+	RETURN=$?
+
+	echo RELOADAGENT | gpg-connect-agent > /dev/null 2>&1
+	echo KILLAGENT | gpg-connect-agent > /dev/null 2>&1
+
+	echo "Encryption completed."
+
+elif [[ "$@" == *'--decrypt'* ]] || [[ "$@" == *'-d'* ]]; then
+	OUT=${TARGET%.*}
+	gpg --decrypt -o $OUT $TARGET
+	
+	RETURN=$?
+
+	echo RELOADAGENT | gpg-connect-agent > /dev/null 2>&1
+	echo KILLAGENT | gpg-connect-agent > /dev/null 2>&1
+
+	echo "Decryption completed."
+
+else
+	usage;
+	exit 0;
+
+fi
+
+
+if [ $RETURN -ne 0 ]; then
+	echo "";
+	echo "Error in gpg execution.";
+	echo "";
+
+	exit 1;
+fi
+
+
+if [[ "$@" == *'--delete'* ]] || [[ "$@" == *'-rm'* ]]; then	
+	rm -f $FILE
+
+	if [ $? -ne 0 ]; then	
+		echo "";
+		echo "Error in delete $FILE.";
+		echo "";
+
+		exit 1
+	fi
+
+	echo "$FILE deleted successfully."
+
+fi
+
+
+exit 0;
+
+

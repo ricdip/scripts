@@ -1,0 +1,44 @@
+#!/bin/bash
+
+exit_command(){
+	echo "";
+	exit 130;	# official exit code for SIGINT signal
+}
+
+usage(){
+	cat << HELP_USAGE
+
+Usage: $(basename $0)
+
+This script scans the network 192.168.1.0/24 in order to search active hosts.
+
+--help, -h, help	Show this message
+
+HELP_USAGE
+
+}
+
+
+if [ "$1" == '--help' ] || [ "$1" == '-h' ] || [ "$1" == 'help' ]
+then
+	usage;
+	exit 0;
+fi
+
+
+trap exit_command SIGINT
+
+echo "";
+echo "Scanning for active hosts in 192.168.1.0/24";
+echo "";
+
+for i in $(seq 0 255); do
+	timeout 0.2 ping -c 1 -W 1 192.168.1.$i | grep 'from' | awk '{str=$4; sub(":","",str)} END{ if(str!="") {print "- " str}}'
+done
+
+echo "";
+echo "Scan finished";
+echo "";
+
+exit 0;
+
