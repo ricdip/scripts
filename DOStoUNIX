@@ -1,0 +1,44 @@
+#!/bin/bash
+
+function help()
+{
+    cat << HELP_MSG
+    
+    Usage: $(basename $0) <InputFile> [OutputFile]
+
+    This script converts a DOS text file to a UNIX text file.
+    If <OutputFile> is not specified, then this script will create
+    a file named "unix_<inputFile>".
+
+    Options:
+        
+        --help | -h | help      Display this usage message 
+
+HELP_MSG
+
+}
+
+
+if [ "$1" == '--help' ] || [ "$1" == '-h' ] || [ "$1" == 'help' ] || [ $# -gt 2 ] || [ $# -lt 1 ]; then
+    help;
+    exit 0;
+fi
+
+
+if [ $# -eq 1 ]; then
+    OUT="unix_$1"
+fi
+
+
+if [ -z $OUT ]; then
+    OUT="$2"
+fi
+
+
+IN="$1"
+
+
+# DOS --> UNIX conversion
+# "\r$" : matches the \r at the ending of any line
+awk '{sub("\r$",""); print }' $IN > "$OUT"
+
