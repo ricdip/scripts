@@ -40,5 +40,5 @@ IN="$1"
 
 # DOS --> UNIX conversion
 # "\r$" : matches the \r at the ending of any line
-awk '{sub("\r$",""); print }' $IN > "$OUT"
+awk '{sub("\r$",""); print }' $IN > $OUT
 
