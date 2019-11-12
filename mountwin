@@ -1,0 +1,43 @@
+#!/bin/bash
+
+function help()
+{
+	cat << HELP_MSG
+
+Usage: $(basename $0) [commands]
+
+THIS PROGRAM MUST BE EXECUTED AS ROOT
+
+Commands:
+ -m			Mount Windows Partition (sda4) on /mnt
+ -u			Umount Windows Partition
+ --help,-h,help 	Display this help message
+
+HELP_MSG
+}
+
+if [ "$1" == '--help' ] ||  [ "$1" == '-h' ] ||  [ "$1" == 'help' ]; then
+	help;
+	exit 0;
+fi
+
+if [ "$(whoami)" != 'root' ]; then
+	echo "This program must be executed as root.";
+	exit 1;
+fi	
+
+if [ "$1" == '-m' ]; then
+
+	echo "Mounting Windows partition (sda4) on /mnt";
+	sudo mount -r /dev/sda4 /mnt
+
+elif  [ "$1" == '-u' ]; then
+	
+	echo "Unmounting Windows partition";
+	sudo umount /mnt
+
+else
+	help;
+	exit 0;
+fi
+
