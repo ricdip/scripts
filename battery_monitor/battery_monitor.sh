@@ -26,6 +26,7 @@ if [[ $battery_status != 'Discharging' ]];then
         battery=$(cat $BATTERYFILE)
         notify-send -u normal -t 6000 "Plugged" "The battery is now charging"
     fi
+    exit 0;
 else
     if [[ $battery == 'plugged' ]];then
         echo "unplugged" > $BATTERYFILE
