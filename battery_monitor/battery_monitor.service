@@ -1,0 +1,14 @@
+# this file is placed in /etc/systemd/user directory
+# reloading unit files command: systemctl daemon-reload
+
+[Unit]
+Description=Battery Monitor
+
+[Service]
+Type=simple
+ExecStart=/bin/bash %h/bin/battery_monitor.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
