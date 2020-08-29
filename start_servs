@@ -1,0 +1,24 @@
+#!/bin/bash
+
+help() {
+cat << HELP
+Usage: $(basename $0) start|stop
+Commands:
+	start		start apache2, mysql and mongodb
+	stop		stop apache2, mysql and mongodb
+
+HELP
+}
+
+if [ "$1" == 'start' ];then
+	sudo service apache2 start;
+        sudo service mysql start;
+        sudo service mongodb start;
+elif [ "$1" == 'stop' ];then
+	sudo service apache2 stop;
+        sudo service mysql stop;
+        sudo service mongodb stop;
+else
+	help;
+fi
+
