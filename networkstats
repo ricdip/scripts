@@ -1,0 +1,33 @@
+#!/bin/bash
+
+function usage()
+{
+    cat << HELP
+
+    Usage: $(basename $0) <interface>
+
+    This script execute "vnstat" on <interface> or it defaults on wlp3s0.
+
+HELP
+}
+
+if [[ "$1" == '--help' ]] || [[ "$1" == 'help' ]] || [[ "$1" == '-h' ]];then
+    usage;
+    exit 0;
+fi
+
+if [[ "$1" != '' ]];then
+    interface=$1
+else
+    interface=wlp3s0
+    echo \(INFO\) Defaulting to $interface.
+fi
+
+echo Analysing network traffic for $interface...
+echo --------------------------------------------
+echo
+echo
+vnstat -i $interface -l
+echo
+echo
+echo --------------------------------------------
