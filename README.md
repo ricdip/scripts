@@ -1,3 +1,3 @@
-# bash_scripts
+# scripts
 
 A set of custom scripts
