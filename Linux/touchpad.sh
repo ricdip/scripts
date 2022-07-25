@@ -28,4 +28,7 @@ elif [[ "$1" == "--disable" || "$1" == "-d" ]]; then
 elif [[ "$1" == "--enable" || "$1" == "-e" ]]; then
     xinput enable "ETPS/2 Elantech Touchpad"
     notify-send "Touchpad" "Touchpad enabled"
+
+else
+    help;
 fi
