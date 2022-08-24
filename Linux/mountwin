@@ -1,15 +1,19 @@
 #!/bin/bash
 
+WINPART=/dev/sda3
+TARGET_DIR=/mnt
+
 function help()
 {
 	cat << HELP_MSG
 
-Usage: $(basename $0) [commands]
+Usage: $(basename $0) <command>
 
-Commands:
- -m			Mount Windows Partition (sda4) on /mnt
+Command:
+ -mr			Mount Windows Partition ($WINPART) on $TARGET_DIR in read-only mode
+ -mw			Mount Windows Partition ($WINPART) on $TARGET_DIR in read-write mode
  -u			Umount Windows Partition
- --help,-h,help 	Display this help message
+ --help, -h, help 	Display this help message
 
 HELP_MSG
 }
@@ -19,15 +23,20 @@ if [ "$1" == '--help' ] ||  [ "$1" == '-h' ] ||  [ "$1" == 'help' ]; then
 	exit 0;
 fi
 
-if [ "$1" == '-m' ]; then
+if [ "$1" == '-mr' ]; then
 
-	echo "Mounting Windows partition (sda4) on /mnt";
-	sudo mount -r /dev/sda4 /mnt
+	echo "Mounting Windows partition ($WINPART) on $TARGET_DIR in read-only mode";
+	sudo mount -r $WINPART $TARGET_DIR
+
+elif [ "$1" == '-mw' ]; then
+
+	echo "Mounting Windows partition ($WINPART) on $TARGET_DIR in read-write mode";
+	sudo mount $WINPART $TARGET_DIR
 
 elif  [ "$1" == '-u' ]; then
 	
 	echo "Unmounting Windows partition";
-	sudo umount /mnt
+	sudo umount $TARGET_DIR
 
 else
 	help;
