@@ -1,0 +1,143 @@
+#!/usr/bin/env python3
+
+import argparse
+import sys
+import re
+import subprocess
+
+PROGRAM_DESCR = "simple wrapper for ffmpeg"
+TIME_RE = "[0-2][0-3]:[0-5][0-9]:[0-5][0-9]$"
+
+
+def error_print(message: str, **kwargs):
+    print(message, **kwargs)
+
+
+def panic(message: str, parser: argparse.ArgumentParser):
+    error_print(message, end="\n\n")
+    if parser is not None:
+        parser.print_help()
+    sys.exit(1)
+
+
+class TimeValidator(argparse.Action):
+    def __init__(self, option_strings: str, dest: str, nargs=None, **kwargs):
+        if nargs is not None:
+            raise ValueError("nargs not allowed")
+        super().__init__(option_strings, dest, **kwargs)
+
+    def __call__(
+        self,
+        parser: argparse.ArgumentParser,
+        namespace: argparse.Namespace,
+        values: str,
+        _,
+    ):
+        if not re.match(TIME_RE, values):
+            panic(f"error: value '{values}' is not valid", parser)
+        setattr(namespace, self.dest, values)
+
+
+class ArgParser:
+    def __init__(self):
+        self.parser = argparse.ArgumentParser(description=PROGRAM_DESCR)
+        subs = self.parser.add_subparsers(dest="action")
+        sub1 = subs.add_parser("crop")
+        sub2 = subs.add_parser("convert")
+
+        sub1.add_argument(
+            "-i",
+            "--input",
+            type=str,
+            dest="input",
+            metavar="INPUT_FILE",
+            required=True,
+            help="path to the input file",
+        )
+        sub1.add_argument(
+            "-s",
+            "--start",
+            type=str,
+            dest="start",
+            metavar="START_TIME",
+            required=True,
+            action=TimeValidator,
+            help="start time (example: 00:00:05)",
+        )
+        sub1.add_argument(
+            "-e",
+            "--end",
+            type=str,
+            dest="end",
+            metavar="END_TIME",
+            required=True,
+            action=TimeValidator,
+            help="end time (example: 00:01:05)",
+        )
+        sub1.add_argument(
+            "-o",
+            "--output",
+            type=str,
+            dest="output",
+            metavar="OUTPUT_FILE",
+            required=True,
+            help="path to the output file",
+        )
+
+        sub2.add_argument(
+            "-i",
+            "--input",
+            type=str,
+            dest="input",
+            metavar="INPUT_FILE",
+            required=True,
+            help="path to the input file",
+        )
+        sub2.add_argument(
+            "-o",
+            "--output",
+            type=str,
+            dest="output",
+            metavar="OUTPUT_FILE",
+            required=True,
+            help="path to the output file",
+        )
+
+        self.args = self.parser.parse_args()
+
+
+def execute(cmd: str):
+    try:
+        subprocess.run(cmd.split(), check=True)
+    except:
+        error_print(f"\nerror: ffmpeg exited with errors")
+
+
+def crop(input: str, output: str, start: str, end: str):
+    cmd = f"""
+        ffmpeg -ss {start} -i {input} -to {end} {output}
+    """
+    execute(cmd)
+
+
+def convert(input: str, output: str):
+    cmd = f"""
+        ffmpeg -i {input} {output}
+    """
+    execute(cmd)
+
+
+def main():
+    arg_parser = ArgParser()
+    args = arg_parser.args
+    action = args.action
+    if action == "crop":
+        crop(args.input, args.output, args.start, args.end)
+    elif action == "convert":
+        convert(args.input, args.output)
+    else:
+        panic("error: invalid action argument", arg_parser.parser)
+
+
+if __name__ == "__main__":
+    main()
