@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# updater for Arch Linux
+# pacman, yay, nix
+__PACMAN=true
+__YAY=true
+__NIX=false
+
+
+function help()
+{
+	cat << HELP_MSG
+
+Usage: $(basename $0) <command>
+
+Command:
+ --also-nix		Update also nix
+ --help, -h, help 	Display this help message
+
+HELP_MSG
+}
+
+
+# check commands
+if ! command -v pacman &> /dev/null
+then
+    $__PACMAN = false
+fi
+
+if ! command -v yay &> /dev/null
+then
+    $__YAY = false
+fi
+
+if ! command -v nix &> /dev/null
+then
+    $__NIX = false
+fi
+
+
+# help arg check
+if [ "$1" == '--help' ] || [ "$1" == '-h' ] || [ "$1" == 'help' ]; then
+    help;
+    exit 0;
+fi
+
+
+# args check
+if [[ "$#" -eq "1" ]] && [[ "$1" == "--also-nix" ]]; then
+    $__NIX = true
+elif [[ "$#" -ge "1" ]]; then
+    echo "[ERROR] Illegal args";
+    exit 1
+fi
+
+
+# update
+## pacman update
+if [[ "$__PACMAN" == "true" ]]; then
+    echo "[INFO] Update pacman";
+    sudo pacman -Syu
+else
+    echo "[INFO] Skipping update pacman";
+fi
+
+## AUR update (yay)
+if [[ "$__YAY" == "true" ]]; then
+    echo "[INFO] Update yay";
+    yay
+else
+    echo "[INFO] Skipping update yay";
+fi
+
+## nix update
+if [[ "$__NIX" == "true" ]]; then
+    echo "[INFO] Update nix";
+    nix-channel --update
+    nix-env --upgrade
+else
+    echo "[INFO] Skipping update nix";
+fi
+
+
+# cleaning
+## pacman clean
+if [[ "$__PACMAN" == "true" ]]; then
+    echo "[INFO] Clean pacman";
+    sudo pacman -Rs $(pacman -Qdtq)
+else
+    echo "[INFO] Skipping clean pacman";
+fi
+
+## AUR clean (yay)
+if [[ "$__YAY" == "true" ]]; then
+    echo "[INFO] Clean yay";
+    yay -Scc
+else
+    echo "[INFO] Skipping clean yay";
+fi
+
+## nix clean
+if [[ "$__NIX" == "true" ]]; then
+    echo "[INFO] Clean nix";
+    nix-env --delete-generations 30d
+    nix-store --gc
+else
+    echo "[INFO] Skipping clean nix";
+fi
+
+
+unset __PACMAN
+unset __YAY
+unset __NIX
