@@ -1,7 +1,7 @@
 #!/bin/bash
 
 WINPART=/dev/sda3
-LWPART=/dev/sda4
+LWPART=/dev/sda6
 TARGET_DIR=/mnt
 
 function help()
