@@ -2,8 +2,8 @@
 
 POWEROFF="Power off"
 REBOOT="Reboot"
-SUSPEND="Suspend"
-HIBERNATE="Hibernate"
+# SUSPEND="Suspend"
+# HIBERNATE="Hibernate"
 LOGOUT="Logout"
 
 
@@ -15,13 +15,13 @@ elif [ x"$@" = x"${REBOOT}" ]; then
     systemctl reboot
     exit 0
 
-elif [ x"$@" = x"${SUSPEND}" ]; then
-    systemctl suspend
-    exit 0
-
-elif [ x"$@" = x"${HIBERNATE}" ]; then
-    systemctl hibernate
-    exit 0
+# elif [ x"$@" = x"${SUSPEND}" ]; then
+#     systemctl suspend
+#     exit 0
+# 
+# elif [ x"$@" = x"${HIBERNATE}" ]; then
+#     systemctl hibernate
+#     exit 0
 
 elif [ x"$@" = x"${LOGOUT}" ]; then
     i3-msg exit
@@ -31,6 +31,6 @@ fi
 
 echo $POWEROFF
 echo $REBOOT
-echo $SUSPEND
-echo $HIBERNATE
+# echo $SUSPEND
+# echo $HIBERNATE
 echo $LOGOUT
